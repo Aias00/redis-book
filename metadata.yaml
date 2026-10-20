@@ -1,0 +1,8 @@
+title: Redis 学习手册
+subtitle: 从数据结构到生产实践
+lang: zh-CN
+author: Redis 学习手册编写组
+rights: '正文 CC BY-SA 4.0；代码 MIT；Redis 为相关权利人的商标。'
+date: '2026-10-20'
+identifier: 'urn:uuid:c3e10958-0784-4ef0-a749-988720c406c5'
+description: '面向有编程基础读者的中文 Redis 学习书，包含数据结构、可靠性、分布式部署、性能与库存预留实战。'

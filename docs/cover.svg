@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1600" viewBox="0 0 1200 1600">
+<rect width="1200" height="1600" fill="#111c2d"/>
+<path d="M0 1100L1200 580V1600H0Z" fill="#192b40"/>
+<g fill="none" stroke="#ed6554" stroke-width="12"><path d="M170 380L600 180L1030 380L600 580Z"/><path d="M170 480L600 680L1030 480M170 580L600 780L1030 580"/></g>
+<g fill="#fff" font-family="sans-serif"><text x="120" y="1010" font-size="116" font-weight="700">Redis 学习手册</text><text x="125" y="1130" font-size="48">从数据结构到生产实践</text><text x="125" y="1410" font-size="30" fill="#b6c7da">原理 · 实验 · 可靠性 · 工程实践</text><text x="125" y="1470" font-size="28" fill="#b6c7da">2026 中文版</text></g>
+</svg>

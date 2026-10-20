@@ -1,0 +1,1542 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="原创中文 Redis 学习书，涵盖数据结构、持久化、高可用、缓存设计与实战。支持在线阅读及 EPUB 下载。">
+<meta name="color-scheme" content="light dark"><title>Redis
+学习手册 · 在线阅读</title><link rel="stylesheet" href="reader.css"></head>
+<body>
+<a class="skip" href="#reading">跳到正文</a>
+<header class="topbar"><a href="#" class="brand"><span class="mark">R</span> Redis 学习手册</a><div><a class="download" href="downloads/redis-learning-handbook.epub" download>下载 EPUB</a><button id="theme" type="button" aria-label="切换深浅主题">切换主题</button></div></header>
+<div class="layout"><aside><details id="contents" open><summary>阅读目录</summary><p class="edition">从数据结构到生产实践 · 2026</p><label for="search">搜索全文</label><input id="search" type="search" placeholder="例如：持久化、幂等、TTL" autocomplete="off"><p id="search-status" role="status" aria-live="polite"></p><ul id="results" hidden></ul><nav id="toc" aria-label="章节目录"><ul>
+<li><a href="#前言学会做判断"
+id="toc-前言学会做判断">前言：学会做判断</a>
+<ul>
+<li><a href="#版本与实验约定"
+id="toc-版本与实验约定">版本与实验约定</a></li>
+<li><a href="#阅读路径" id="toc-阅读路径">阅读路径</a></li>
+</ul></li>
+<li><a href="#第-1-章-认识-redis-与建立实验环境"
+id="toc-第-1-章-认识-redis-与建立实验环境">第 1 章　认识 Redis
+与建立实验环境</a>
+<ul>
+<li><a href="#从一次请求看-redis" id="toc-从一次请求看-redis">1.1
+从一次请求看 Redis</a></li>
+<li><a href="#启动隔离实例" id="toc-启动隔离实例">1.2
+启动隔离实例</a></li>
+<li><a href="#先认识三种错误" id="toc-先认识三种错误">1.3
+先认识三种错误</a></li>
+<li><a href="#延迟预算" id="toc-延迟预算">1.4 延迟预算</a></li>
+</ul></li>
+<li><a href="#第-2-章-键命名空间与生命周期"
+id="toc-第-2-章-键命名空间与生命周期">第 2
+章　键、命名空间与生命周期</a>
+<ul>
+<li><a href="#键设计就是接口设计" id="toc-键设计就是接口设计">2.1
+键设计就是接口设计</a></li>
+<li><a href="#过期是状态的一部分" id="toc-过期是状态的一部分">2.2
+过期是状态的一部分</a></li>
+<li><a href="#遍历与删除" id="toc-遍历与删除">2.3 遍历与删除</a></li>
+<li><a href="#数据库编号的限制" id="toc-数据库编号的限制">2.4
+数据库编号的限制</a></li>
+</ul></li>
+<li><a href="#第-3-章-string缓存计数与条件写入"
+id="toc-第-3-章-string缓存计数与条件写入">第 3
+章　String：缓存、计数与条件写入</a>
+<ul>
+<li><a href="#值是字节序列" id="toc-值是字节序列">3.1
+值是字节序列</a></li>
+<li><a href="#计数的原子边界" id="toc-计数的原子边界">3.2
+计数的原子边界</a></li>
+<li><a href="#条件写入" id="toc-条件写入">3.3 条件写入</a></li>
+<li><a href="#bitmap-是位操作视角" id="toc-bitmap-是位操作视角">3.4
+Bitmap 是位操作视角</a></li>
+</ul></li>
+<li><a href="#第-4-章-hashlist-与-set-的业务模型"
+id="toc-第-4-章-hashlist-与-set-的业务模型">第 4 章　Hash、List 与 Set
+的业务模型</a>
+<ul>
+<li><a href="#hash把同一实体的字段放在一起"
+id="toc-hash把同一实体的字段放在一起">4.1
+Hash：把同一实体的字段放在一起</a></li>
+<li><a href="#list有序序列" id="toc-list有序序列">4.2
+List：有序序列</a></li>
+<li><a href="#set去重与集合计算" id="toc-set去重与集合计算">4.3
+Set：去重与集合计算</a></li>
+<li><a href="#选择由访问模式决定" id="toc-选择由访问模式决定">4.4
+选择由访问模式决定</a></li>
+</ul></li>
+<li><a href="#第-5-章-sorted-set-与概率统计结构"
+id="toc-第-5-章-sorted-set-与概率统计结构">第 5 章　Sorted Set
+与概率统计结构</a>
+<ul>
+<li><a href="#排行需要分数与成员" id="toc-排行需要分数与成员">5.1
+排行需要分数与成员</a></li>
+<li><a href="#范围查询与窗口" id="toc-范围查询与窗口">5.2
+范围查询与窗口</a></li>
+<li><a href="#hyperloglog用误差换空间"
+id="toc-hyperloglog用误差换空间">5.3 HyperLogLog：用误差换空间</a></li>
+<li><a href="#地理位置" id="toc-地理位置">5.4 地理位置</a></li>
+</ul></li>
+<li><a href="#第-6-章-协议连接与-pipeline"
+id="toc-第-6-章-协议连接与-pipeline">第 6 章　协议、连接与 Pipeline</a>
+<ul>
+<li><a href="#一次响应的含义" id="toc-一次响应的含义">6.1
+一次响应的含义</a></li>
+<li><a href="#连接池与超时" id="toc-连接池与超时">6.2
+连接池与超时</a></li>
+<li><a href="#pipeline-减少往返" id="toc-pipeline-减少往返">6.3 Pipeline
+减少往返</a></li>
+<li><a href="#什么时候用什么" id="toc-什么时候用什么">6.4
+什么时候用什么</a></li>
+</ul></li>
+<li><a href="#第-7-章-事务乐观锁与-lua-原子性"
+id="toc-第-7-章-事务乐观锁与-lua-原子性">第 7 章　事务、乐观锁与 Lua
+原子性</a>
+<ul>
+<li><a href="#multiexec-保证什么" id="toc-multiexec-保证什么">7.1
+MULTI/EXEC 保证什么</a></li>
+<li><a href="#watch-检查并发变化" id="toc-watch-检查并发变化">7.2 WATCH
+检查并发变化</a></li>
+<li><a href="#首次计数时设置-ttl" id="toc-首次计数时设置-ttl">7.3
+首次计数时设置 TTL</a></li>
+<li><a href="#脚本缓存与部署" id="toc-脚本缓存与部署">7.4
+脚本缓存与部署</a></li>
+</ul></li>
+<li><a href="#第-8-章-过期淘汰与内存容量"
+id="toc-第-8-章-过期淘汰与内存容量">第 8 章　过期、淘汰与内存容量</a>
+<ul>
+<li><a href="#过期和淘汰解决不同问题"
+id="toc-过期和淘汰解决不同问题">8.1 过期和淘汰解决不同问题</a></li>
+<li><a href="#选择-maxmemory-policy" id="toc-选择-maxmemory-policy">8.2
+选择 maxmemory-policy</a></li>
+<li><a href="#内存不仅是-value" id="toc-内存不仅是-value">8.3 内存不仅是
+value</a></li>
+<li><a href="#大键与热键" id="toc-大键与热键">8.4 大键与热键</a></li>
+</ul></li>
+<li><a href="#第-9-章-rdbaof-与恢复演练"
+id="toc-第-9-章-rdbaof-与恢复演练">第 9 章　RDB、AOF 与恢复演练</a>
+<ul>
+<li><a href="#先定义损失预算" id="toc-先定义损失预算">9.1
+先定义损失预算</a></li>
+<li><a href="#rdb-是时间点快照" id="toc-rdb-是时间点快照">9.2 RDB
+是时间点快照</a></li>
+<li><a href="#aof-是写操作记录" id="toc-aof-是写操作记录">9.3 AOF
+是写操作记录</a></li>
+<li><a href="#恢复是备份的验收" id="toc-恢复是备份的验收">9.4
+恢复是备份的验收</a></li>
+</ul></li>
+<li><a href="#第-10-章-复制延迟与故障后的数据"
+id="toc-第-10-章-复制延迟与故障后的数据">第 10
+章　复制、延迟与故障后的数据</a>
+<ul>
+<li><a href="#异步复制的含义" id="toc-异步复制的含义">10.1
+异步复制的含义</a></li>
+<li><a href="#观察复制" id="toc-观察复制">10.2 观察复制</a></li>
+<li><a href="#wait-不是共识协议" id="toc-wait-不是共识协议">10.3 WAIT
+不是共识协议</a></li>
+<li><a href="#限制不等于保证" id="toc-限制不等于保证">10.4
+限制不等于保证</a></li>
+</ul></li>
+<li><a href="#第-11-章-sentinel发现故障与自动切换"
+id="toc-第-11-章-sentinel发现故障与自动切换">第 11
+章　Sentinel：发现故障与自动切换</a>
+<ul>
+<li><a href="#sentinel-管理的是主从组"
+id="toc-sentinel-管理的是主从组">11.1 Sentinel 管理的是主从组</a></li>
+<li><a href="#quorum-与多数派" id="toc-quorum-与多数派">11.2 quorum
+与多数派</a></li>
+<li><a href="#切换期间的应用" id="toc-切换期间的应用">11.3
+切换期间的应用</a></li>
+<li><a href="#演练验收" id="toc-演练验收">11.4 演练验收</a></li>
+</ul></li>
+<li><a href="#第-12-章-cluster槽路由与多键边界"
+id="toc-第-12-章-cluster槽路由与多键边界">第 12
+章　Cluster：槽、路由与多键边界</a>
+<ul>
+<li><a href="#槽是分片单位" id="toc-槽是分片单位">12.1
+槽是分片单位</a></li>
+<li><a href="#同槽是多键操作的前提" id="toc-同槽是多键操作的前提">12.2
+同槽是多键操作的前提</a></li>
+<li><a href="#moved-与-ask" id="toc-moved-与-ask">12.3 MOVED 与
+ASK</a></li>
+<li><a href="#扩容不能消除单键热点" id="toc-扩容不能消除单键热点">12.4
+扩容不能消除单键热点</a></li>
+</ul></li>
+<li><a href="#第-13-章-缓存一致性与失效策略"
+id="toc-第-13-章-缓存一致性与失效策略">第 13
+章　缓存一致性与失效策略</a>
+<ul>
+<li><a href="#cache-aside-的基本流程"
+id="toc-cache-aside-的基本流程">13.1 Cache Aside 的基本流程</a></li>
+<li><a href="#两个并发请求的反例" id="toc-两个并发请求的反例">13.2
+两个并发请求的反例</a></li>
+<li><a href="#空值热点和雪崩" id="toc-空值热点和雪崩">13.3
+空值、热点和雪崩</a></li>
+<li><a href="#设计验收问题" id="toc-设计验收问题">13.4
+设计验收问题</a></li>
+</ul></li>
+<li><a href="#第-14-章-分布式锁租约与限流"
+id="toc-第-14-章-分布式锁租约与限流">第 14 章　分布式锁、租约与限流</a>
+<ul>
+<li><a href="#锁首先是租约" id="toc-锁首先是租约">14.1
+锁首先是租约</a></li>
+<li><a href="#fencing-token-的作用" id="toc-fencing-token-的作用">14.2
+fencing token 的作用</a></li>
+<li><a href="#三种常见限流" id="toc-三种常见限流">14.3
+三种常见限流</a></li>
+<li><a href="#故障策略" id="toc-故障策略">14.4 故障策略</a></li>
+</ul></li>
+<li><a href="#第-15-章-pubsubstream-与可靠消费"
+id="toc-第-15-章-pubsubstream-与可靠消费">第 15 章　Pub/Sub、Stream
+与可靠消费</a>
+<ul>
+<li><a href="#实时广播与可恢复日志" id="toc-实时广播与可恢复日志">15.1
+实时广播与可恢复日志</a></li>
+<li><a href="#待确认与接管" id="toc-待确认与接管">15.2
+待确认与接管</a></li>
+<li><a href="#至少一次需要幂等" id="toc-至少一次需要幂等">15.3
+至少一次需要幂等</a></li>
+<li><a href="#保留策略" id="toc-保留策略">15.4 保留策略</a></li>
+</ul></li>
+<li><a href="#第-16-章-性能测量与慢请求排查"
+id="toc-第-16-章-性能测量与慢请求排查">第 16
+章　性能测量与慢请求排查</a>
+<ul>
+<li><a href="#从用户延迟开始" id="toc-从用户延迟开始">16.1
+从用户延迟开始</a></li>
+<li><a href="#由证据缩小范围" id="toc-由证据缩小范围">16.2
+由证据缩小范围</a></li>
+<li><a href="#基准不是排行榜" id="toc-基准不是排行榜">16.3
+基准不是排行榜</a></li>
+<li><a href="#优化的次序" id="toc-优化的次序">16.4 优化的次序</a></li>
+</ul></li>
+<li><a href="#第-17-章-安全权限与部署边界"
+id="toc-第-17-章-安全权限与部署边界">第 17 章　安全、权限与部署边界</a>
+<ul>
+<li><a href="#先限制网络可达性" id="toc-先限制网络可达性">17.1
+先限制网络可达性</a></li>
+<li><a href="#acl-按最小权限分工" id="toc-acl-按最小权限分工">17.2 ACL
+按最小权限分工</a></li>
+<li><a href="#tls-与敏感信息" id="toc-tls-与敏感信息">17.3 TLS
+与敏感信息</a></li>
+<li><a href="#升级与变更" id="toc-升级与变更">17.4 升级与变更</a></li>
+</ul></li>
+<li><a href="#第-18-章-监控故障处置与恢复手册"
+id="toc-第-18-章-监控故障处置与恢复手册">第 18
+章　监控、故障处置与恢复手册</a>
+<ul>
+<li><a href="#指标应连接到业务后果" id="toc-指标应连接到业务后果">18.1
+指标应连接到业务后果</a></li>
+<li><a href="#内存告警处置" id="toc-内存告警处置">18.2
+内存告警处置</a></li>
+<li><a href="#延迟升高处置" id="toc-延迟升高处置">18.3
+延迟升高处置</a></li>
+<li><a href="#备份恢复验收表" id="toc-备份恢复验收表">18.4
+备份恢复验收表</a></li>
+</ul></li>
+<li><a href="#第-19-章-综合实战幂等库存预留"
+id="toc-第-19-章-综合实战幂等库存预留">第 19
+章　综合实战：幂等库存预留</a>
+<ul>
+<li><a href="#范围与不变量" id="toc-范围与不变量">19.1
+范围与不变量</a></li>
+<li><a href="#数据模型" id="toc-数据模型">19.2 数据模型</a></li>
+<li><a href="#原子流程" id="toc-原子流程">19.3 原子流程</a></li>
+<li><a href="#运行与预期" id="toc-运行与预期">19.4 运行与预期</a></li>
+<li><a href="#从教学到上线" id="toc-从教学到上线">19.5
+从教学到上线</a></li>
+</ul></li>
+<li><a href="#第-20-章-练习参考答案与学习检查"
+id="toc-第-20-章-练习参考答案与学习检查">第 20
+章　练习参考答案与学习检查</a>
+<ul>
+<li><a href="#基础与建模第-15-章" id="toc-基础与建模第-15-章">20.1
+基础与建模（第 1—5 章）</a></li>
+<li><a href="#原子性与可靠性第-612-章"
+id="toc-原子性与可靠性第-612-章">20.2 原子性与可靠性（第 6—12
+章）</a></li>
+<li><a href="#应用与运维第-1319-章" id="toc-应用与运维第-1319-章">20.3
+应用与运维（第 13—19 章）</a></li>
+<li><a href="#自测清单" id="toc-自测清单">20.4 自测清单</a></li>
+</ul></li>
+<li><a href="#附录-官方资料与命令速查"
+id="toc-附录-官方资料与命令速查">附录　官方资料与命令速查</a>
+<ul>
+<li><a href="#资料使用方法" id="toc-资料使用方法">资料使用方法</a></li>
+<li><a href="#命令速查" id="toc-命令速查">命令速查</a></li>
+<li><a href="#建议的学习记录"
+id="toc-建议的学习记录">建议的学习记录</a></li>
+</ul></li>
+</ul></nav></details></aside>
+<main id="reading"><div class="intro"><span class="eyebrow">一本可以动手验证的 Redis 学习书</span><h1 class="book-title">Redis 学习手册</h1><p class="subtitle">从数据结构到生产实践</p><p>以 Redis 7.2 为实验基线，循序掌握数据建模、可靠性与工程边界。</p><div class="chips"><span>20 章 + 前言与附录</span><span>可运行示例</span><span>EPUB 离线阅读</span></div></div>
+<article><section id="前言学会做判断" class="level1">
+<h1>前言：学会做判断</h1>
+<p>Redis
+的命令容易上手，困难的是回答工程问题：这个键为什么占这么多内存？主节点确认写入以后，故障切换还能丢数据吗？给缓存设置过期时间，是否就能保证数据一致？本书围绕这些问题展开，从可以复现的命令走向可以解释的系统行为。</p>
+<p>本书适合会使用终端、有基本编程与数据库知识的读者。你不需要先读 Redis
+源码，但应知道进程、网络连接和磁盘文件的含义。每章按“问题—机制—实验—边界—练习”组织。先预测实验结果，再运行命令，比逐行照抄更有效。</p>
+<section id="版本与实验约定" class="level2">
+<h2>版本与实验约定</h2>
+<p>实验以 Redis 7.2 为兼容基线，使用官方容器镜像的 7.2
+系列。它是教学基线，并不代表对生产版本的推荐。补丁版本会更新；需要严格复现时记录镜像摘要和
+<code>INFO server</code> 的输出。Redis 8
+及后续版本增加的能力、默认配置变化、许可及分发方式，应以目标版本官方文档为准。本书不把某个托管产品的保证当成所有
+Redis 部署的保证。</p>
+<p>命令示例中的 <code>127.0.0.1:6379&gt;</code> 提示符被省略，代码块里的
+Redis 命令可在交互式 <code>redis-cli</code> 中逐行执行。<code>sh</code>
+代码块在系统终端执行。涉及多客户端的实验会标明客户端
+A、B。返回结果通常用正文描述，避免把输出误作下一条命令。键统一使用
+<code>lab:</code> 前缀；综合项目用 <code>book:</code> 前缀。</p>
+<p>所有会改变持久化、内存或故障状态的实验，都应使用独立实例。不要把示例指向生产地址。示例口令只用于理解配置，部署时应通过自己的密钥管理系统提供。实验不要求清空整个数据库。</p>
+</section>
+<section id="阅读路径" class="level2">
+<h2>阅读路径</h2>
+<p>第一次接触 Redis，依次阅读第 1—6 章；准备设计业务，继续阅读第 7—14
+章；承担上线运维，重点完成第 15—18 章。第 19
+章把数据建模、原子性、幂等与过期策略合在一个库存预留项目中，第 20
+章提供练习参考答案和复盘方法。</p>
+<p>本书所有文字和实验均为本项目原创编排，技术依据集中列在附录。Redis
+是相关权利人的商标，本书不是 Redis
+官方出版物。示意时序省略了网络协议细节；遇到部署决策，应进一步阅读相应版本的官方说明并在自己的环境中验证。</p>
+</section>
+</section>
+<section id="第-1-章-认识-redis-与建立实验环境" class="level1">
+<h1>第 1 章　认识 Redis 与建立实验环境</h1>
+<section id="从一次请求看-redis" class="level2">
+<h2>1.1 从一次请求看 Redis</h2>
+<p>Redis
+是一个通过网络访问的数据结构服务器。客户端发送命令，服务器读取键对应的值、执行操作并返回结果。它把活跃数据放在内存中，因此常见操作延迟很低；持久化、复制和淘汰策略决定了内存以外的可靠性边界。</p>
+<p>“内存数据库”不意味着数据必然不落盘，“单线程”也不意味着进程只有一条线程。许多常规命令的执行由主线程串行处理，但网络
+I/O、后台释放、持久化子进程等会参与工作。判断吞吐瓶颈时，要区分命令执行、网络、客户端排队和磁盘等待。</p>
+<p>Redis
+擅长缓存、计数、排行、短期状态和快速索引。它没有关系数据库那样通用的跨表事务与约束。将核心账本迁入
+Redis 之前，必须明确可接受的数据损失、审计方式以及故障恢复流程。</p>
+</section>
+<section id="启动隔离实例" class="level2">
+<h2>1.2 启动隔离实例</h2>
+<p>仓库提供 <code>compose.yaml</code>，需要 Docker 及 Compose
+插件。启动命令：</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose up <span class="at">-d</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose exec redis redis-cli PING</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose exec redis redis-cli INFO server</span></code></pre></div>
+<p><code>PING</code> 应返回
+<code>PONG</code>。端口只绑定本机回环地址，数据保存在独立命名卷。进入交互终端：</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose exec redis redis-cli</span></code></pre></div>
+<p>随后执行：</p>
+<pre class="redis"><code>SET lab:hello &quot;Redis&quot;
+GET lab:hello
+TYPE lab:hello
+DEL lab:hello</code></pre>
+<p>依次应看到写入成功、字符串 <code>Redis</code>、类型
+<code>string</code> 和删除数量 1。停止容器但保留数据用
+<code>docker compose down</code>；只有确认不再需要实验数据时才附加
+<code>--volumes</code>。</p>
+</section>
+<section id="先认识三种错误" class="level2">
+<h2>1.3 先认识三种错误</h2>
+<p>连接失败通常是网络、监听地址或进程问题；<code>NOAUTH</code>
+是认证问题；<code>WRONGTYPE</code>
+表示键存在但类型不匹配。三者发生在不同层次，不能靠同一条“重启服务”解决。</p>
+<pre class="redis"><code>SET lab:type &quot;text&quot;
+LPUSH lab:type item</code></pre>
+<p>第二条命令应报
+<code>WRONGTYPE</code>。删除并重新建模才可能转换数据类型；不能用列表命令直接操作字符串。客户端应把这类错误当作数据模型或代码问题，而非瞬时网络错误自动重试。</p>
+</section>
+<section id="延迟预算" class="level2">
+<h2>1.4 延迟预算</h2>
+<p>一次调用耗时包含连接获取、网络往返、服务端排队、命令执行和响应传输。假设单次往返为
+1 毫秒，顺序执行 100 次命令，即使命令本身很快，也可能消耗接近 100
+毫秒。先减少往返，往往比猜测底层编码更有效。</p>
+<p>练习：写入一个用户昵称，再用错误类型命令读取它。分别记录连接错误、键不存在和类型错误在客户端中的表现。思考：将错误都转换成“没有数据”，会隐藏哪些故障？</p>
+</section>
+</section>
+<section id="第-2-章-键命名空间与生命周期" class="level1">
+<h1>第 2 章　键、命名空间与生命周期</h1>
+<section id="键设计就是接口设计" class="level2">
+<h2>2.1 键设计就是接口设计</h2>
+<p>键名应表达业务实体、标识和用途，例如
+<code>book:user:42:profile</code>。环境通常由独立实例或集群隔离；租户信息是否进入键名取决于隔离策略。不要把邮箱、手机号或访问令牌直接拼进键名，因为监控、慢日志和备份都有机会暴露它们。</p>
+<p>键越长，重复存储的开销越大；键过短又难以运维。把命名规则写成表格，比让每个调用方自由发挥更可靠。</p>
+<table>
+<thead>
+<tr>
+<th>形状</th>
+<th>类型</th>
+<th>生命周期</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>book:user:42:profile</code></td>
+<td>Hash</td>
+<td>随业务失效</td>
+<td>用户摘要</td>
+</tr>
+<tr>
+<td><code>book:rank:2026-10</code></td>
+<td>Sorted Set</td>
+<td>月末归档后过期</td>
+<td>月排行</td>
+</tr>
+<tr>
+<td><code>book:request:abc</code></td>
+<td>String</td>
+<td>按重试窗口保留</td>
+<td>幂等结果</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="过期是状态的一部分" class="level2">
+<h2>2.2 过期是状态的一部分</h2>
+<pre class="redis"><code>SET lab:session token EX 60
+TTL lab:session
+PTTL lab:session
+EXPIRE lab:session 120
+PERSIST lab:session
+TTL lab:session</code></pre>
+<p><code>TTL</code> 以秒返回剩余有效期，<code>PTTL</code>
+使用毫秒；<code>-1</code> 表示存在且没有过期时间，<code>-2</code>
+表示键不存在。普通 <code>SET</code> 覆盖键时会移除原 TTL，除非使用
+<code>KEEPTTL</code>；<code>INCR</code>、<code>HSET</code>
+等原位修改通常保留键的 TTL。</p>
+<pre class="redis"><code>SET lab:ttl 1 EX 60
+INCR lab:ttl
+TTL lab:ttl
+SET lab:ttl 3
+TTL lab:ttl</code></pre>
+<p>最后返回
+<code>-1</code>。这类覆盖操作经常造成“缓存为何一直不更新”的问题。需要初次创建和过期一体完成时用
+<code>SET ... EX</code>，不要在应用中分成 <code>SET</code> 和
+<code>EXPIRE</code> 两个独立步骤。</p>
+</section>
+<section id="遍历与删除" class="level2">
+<h2>2.3 遍历与删除</h2>
+<p><code>KEYS lab:*</code>
+会一次扫描整个键空间，数据量大时阻塞服务。<code>SCAN</code>
+用游标渐进遍历，返回数量受 <code>COUNT</code>
+提示影响，不保证每次恰好多少条，也可能重复返回键。一次完整迭代对始终存在的键有相应遍历保证，但不是一致性快照；并发增删的键是否出现没有完整保证。</p>
+<pre class="redis"><code>SCAN 0 MATCH lab:* COUNT 100</code></pre>
+<p>把返回的新游标继续传入，直到游标回到
+0；不能因为本批为空就停止。批量处理要幂等，并限制每次删除数量。大对象使用
+<code>UNLINK</code>
+可把主要内存回收工作放到后台，但仍要评估对象结构和异步释放积压。</p>
+</section>
+<section id="数据库编号的限制" class="level2">
+<h2>2.4 数据库编号的限制</h2>
+<p>独立 Redis
+可以使用逻辑数据库编号，但它们共享进程资源，并不形成可靠的租户隔离。Redis
+Cluster 只支持数据库
+0。因此应用尽量显式命名和配置，不要依赖“把数据库编号加一”完成水平扩展。</p>
+<p>练习：用 <code>SET</code>、<code>INCR</code> 和
+<code>SET KEEPTTL</code> 比较
+TTL。设计一个批量清理脚本时，为什么同时需要游标、批次上限和可重复执行能力？</p>
+</section>
+</section>
+<section id="第-3-章-string缓存计数与条件写入" class="level1">
+<h1>第 3 章　String：缓存、计数与条件写入</h1>
+<section id="值是字节序列" class="level2">
+<h2>3.1 值是字节序列</h2>
+<p>String 可以保存 UTF-8 文本、JSON、整数的文本形式或二进制内容。Redis
+不会替你检查 JSON
+中字段是否符合业务约束。序列化格式需要约定版本、空值表现和兼容方式；应用升级后旧缓存仍可能存在。</p>
+<pre class="redis"><code>SET lab:article:1 &#39;{&quot;v&quot;:1,&quot;title&quot;:&quot;认识 Redis&quot;}&#39; EX 300
+GET lab:article:1
+MSET lab:a 10 lab:b 20
+MGET lab:a lab:b lab:missing</code></pre>
+<p><code>MGET</code>
+按请求顺序返回值，不存在的位置是空值。一次多键调用减少网络往返；在
+Cluster 中，多键命令还必须满足同槽约束。</p>
+</section>
+<section id="计数的原子边界" class="level2">
+<h2>3.2 计数的原子边界</h2>
+<pre class="redis"><code>SET lab:views 0
+INCR lab:views
+INCRBY lab:views 9
+GET lab:views</code></pre>
+<p>最终是 10。<code>INCR</code>
+避免了客户端“读—加一—写”之间的竞争，它使用有符号 64
+位整数，溢出会报错。浮点计数不适合精确货币；金额可用最小货币单位的整数表示，同时检查范围。</p>
+<p>如果写成 <code>INCR</code> 后再
+<code>EXPIRE</code>，两步之间进程可能失败，产生永不过期的计数键。用脚本把递增和首次过期放在一起，见第
+7 章。</p>
+</section>
+<section id="条件写入" class="level2">
+<h2>3.3 条件写入</h2>
+<pre class="redis"><code>SET lab:once first NX EX 30
+SET lab:once second NX EX 30
+GET lab:once</code></pre>
+<p>若初始键不存在，第一次成功，第二次返回空值，读到
+<code>first</code>。<code>NX</code> 只在不存在时写，<code>XX</code>
+只在存在时写。返回空值是条件未满足，并不等同于网络超时。</p>
+<p>条件写入可以实现短期去重的占位，但“占位成功”并不代表后续业务已完成。业务失败后如何解除占位、重试是否会重复扣款、超时后结果能否查询，都需要额外协议。把去重当成完整的幂等实现会留下漏洞。</p>
+</section>
+<section id="bitmap-是位操作视角" class="level2">
+<h2>3.4 Bitmap 是位操作视角</h2>
+<pre class="redis"><code>SETBIT lab:attendance 7 1
+GETBIT lab:attendance 7
+BITCOUNT lab:attendance</code></pre>
+<p>偏移量以位计数。用户 ID
+极大且稀疏时，直接作为位偏移会分配大量零填充空间；它适合稠密编号。按天保存签到位图，可通过位运算求连续活跃，但应控制键大小和运算成本。</p>
+<p>练习：为什么“先 GET，不存在才 SET”无法保证只有一个客户端初始化？若某
+API 超时，你能否根据超时推断 <code>INCR</code>
+没有执行？给出安全的重试设计思路。</p>
+</section>
+</section>
+<section id="第-4-章-hashlist-与-set-的业务模型" class="level1">
+<h1>第 4 章　Hash、List 与 Set 的业务模型</h1>
+<section id="hash把同一实体的字段放在一起" class="level2">
+<h2>4.1 Hash：把同一实体的字段放在一起</h2>
+<pre class="redis"><code>HSET lab:user:42 name Lin level 3
+HGET lab:user:42 name
+HMGET lab:user:42 name level missing
+HINCRBY lab:user:42 level 1
+HGETALL lab:user:42</code></pre>
+<p>Hash 适合用户摘要或配置字段，避免每改一个字段都序列化完整
+JSON。在本书的 7.2 基线中，TTL
+设置在整个键上，不能把新版本的字段级过期能力假设成基线能力。若字段需要独立过期，可拆键或由应用维护时间戳与清理流程。</p>
+<p>不要把全体用户塞进单个超大
+Hash：它会形成热键，并让迁移、全量读取与删除成本变大。<code>HGETALL</code>
+返回全部字段，只适用于边界清晰的小对象；大对象渐进使用
+<code>HSCAN</code>。</p>
+</section>
+<section id="list有序序列" class="level2">
+<h2>4.2 List：有序序列</h2>
+<pre class="redis"><code>LPUSH lab:tasks job1 job2
+LRANGE lab:tasks 0 -1
+RPOP lab:tasks</code></pre>
+<p><code>LPUSH</code> 参数从左向右依次插入，因此首次读取列表应是
+<code>job2, job1</code>，右端弹出
+<code>job1</code>。选择哪端入队和哪端出队决定 FIFO 或
+LIFO，不能只根据命令名猜测。</p>
+<p><code>BLPOP</code>
+等阻塞命令可以等待新任务，但弹出后消费者崩溃会丢失待处理状态。可以用
+<code>BLMOVE</code>
+把任务原子移到处理中列表，再实现确认、超时回收；需求更复杂时使用
+Stream。列表并不是默认可靠的消息系统。</p>
+</section>
+<section id="set去重与集合计算" class="level2">
+<h2>4.3 Set：去重与集合计算</h2>
+<pre class="redis"><code>SADD lab:tag:redis u1 u2 u2
+SADD lab:tag:database u2 u3
+SCARD lab:tag:redis
+SINTER lab:tag:redis lab:tag:database
+SISMEMBER lab:tag:redis u1</code></pre>
+<p>集合成员唯一且无序，第一条新增数量是 2，交集包含 <code>u2</code>。Set
+适合标签、关注关系和访问资格。大集合交并运算会消耗主线程时间，跨槽也有额外限制。用线上全集临时计算报表，可能拖慢延迟敏感请求。</p>
+</section>
+<section id="选择由访问模式决定" class="level2">
+<h2>4.4 选择由访问模式决定</h2>
+<p>如果只需要完整文档读取且更新稀少，String JSON
+很自然；如果经常读写单字段，Hash 更合适；如果需要顺序和重复值，用
+List；如果强调成员唯一性和存在性判断，用
+Set。不要只按节省几个字节选模型，要把读写频率、单键大小、并发集中程度和清理方式一起比较。</p>
+<p>练习：评论列表为什么不一定适合一个无限增长的
+List？给出分页、归档与删除的模型。为“一个用户的最近 20
+次访问”设计有界列表操作，并说明两个独立命令之间可能出现什么短暂状态。</p>
+</section>
+</section>
+<section id="第-5-章-sorted-set-与概率统计结构" class="level1">
+<h1>第 5 章　Sorted Set 与概率统计结构</h1>
+<section id="排行需要分数与成员" class="level2">
+<h2>5.1 排行需要分数与成员</h2>
+<pre class="redis"><code>ZADD lab:rank 100 alice 80 bob 100 carol
+ZINCRBY lab:rank 15 bob
+ZRANGE lab:rank 0 -1 WITHSCORES
+ZRANGE lab:rank 0 1 REV WITHSCORES
+ZRANK lab:rank bob</code></pre>
+<p>成员唯一，分数可修改。默认按分数升序，分数相同再按成员的二进制字典序；<code>REV</code>
+会反向排序。因此若业务要求同分者先达到者领先，必须显式设计规则。不能声称
+Redis 自动按照提交时间打破同分。</p>
+<p>分数使用双精度浮点数，连续整数在绝对值不超过 2^53
+时可精确表达。将时间戳与分数随意拼成很大的整数，可能损失精度。复杂排名规则可在应用中二次排序，或者给明确上限的组合编码写出范围证明。</p>
+</section>
+<section id="范围查询与窗口" class="level2">
+<h2>5.2 范围查询与窗口</h2>
+<pre class="redis"><code>ZADD lab:events 1000 e1 1010 e2 1020 e3
+ZRANGE lab:events 1005 1020 BYSCORE
+ZREMRANGEBYSCORE lab:events -inf 1005
+ZCARD lab:events</code></pre>
+<p>这种模型可用于滑动时间窗口：删除窗口外成员，添加当前事件，统计窗口内数量。但三个独立命令之间会被其他客户端插入，需要原子脚本；事件成员还必须唯一，否则相同成员会更新而非新增。窗口内每次请求都保存一条记录，内存随流量增长，不能忽略容量上限。</p>
+</section>
+<section id="hyperloglog用误差换空间" class="level2">
+<h2>5.3 HyperLogLog：用误差换空间</h2>
+<pre class="redis"><code>PFADD lab:uv user1 user2 user1
+PFCOUNT lab:uv
+PFADD lab:uv:next user2 user3
+PFMERGE lab:uv:all lab:uv lab:uv:next
+PFCOUNT lab:uv:all</code></pre>
+<p>HyperLogLog
+估计去重基数，不支持枚举原始成员，也不适合删除单个用户。标准误差约
+0.81%，这是统计性质，不是“每次结果都在固定误差范围内”的确定保证。小规模示例恰好精确，不说明大规模也精确。需要精确结算时用有审计能力的精确数据源。</p>
+</section>
+<section id="地理位置" class="level2">
+<h2>5.4 地理位置</h2>
+<pre class="redis"><code>GEOADD lab:places 116.397 39.908 palace 116.407 39.904 center
+GEODIST lab:places palace center km
+GEOSEARCH lab:places FROMLONLAT 116.397 39.908 BYRADIUS 2 km WITHDIST ASC</code></pre>
+<p>经度在前，纬度在后。GEO
+面向近似地理范围查询，不是路网导航系统，返回距离也不是实际驾车距离。基础地理结构由有序集合编码支撑，不支持给单个地点直接设置键级
+TTL。</p>
+<p>练习：全球日活统计和付费用户账单分别应选择什么结构？如果排行榜必须让同分者按最早达成时间排序，列出一种不损失精度的方案及代价。</p>
+</section>
+</section>
+<section id="第-6-章-协议连接与-pipeline" class="level1">
+<h1>第 6 章　协议、连接与 Pipeline</h1>
+<section id="一次响应的含义" class="level2">
+<h2>6.1 一次响应的含义</h2>
+<p>客户端把命令编码为 RESP，通过 TCP 或 TLS
+连接发送。服务器返回简单字符串、整数、错误、数组、空值等结果；现代客户端还可能使用
+RESP3
+的更多类型。业务代码应通过客户端库处理协议，而不是按换行手动切割字符串。</p>
+<p>必须区分三件事：命令明确失败、命令明确成功、响应未收到。网络超时时命令可能已经执行。对
+<code>GET</code> 重试通常无副作用；对
+<code>INCR</code>、入队或扣库存盲目重试可能重复操作。请求 ID
+与结果记录才是处理这种不确定性的关键。</p>
+</section>
+<section id="连接池与超时" class="level2">
+<h2>6.2 连接池与超时</h2>
+<p>连接池限制应用对 Redis
+的并发连接；过大的池可能把压力转嫁给服务器，过小则产生客户端排队。需要分别配置建连超时、读写超时和连接池等待超时，观察池等待与服务端延迟，而不是把全部时间归结为
+Redis 慢。</p>
+<p>阻塞式队列读取、订阅连接通常应使用独立连接，避免占住普通请求的连接。多进程应用要按实际进程数计算总连接预算。连接被借出后必须可靠归还；异常路径中的泄漏，常常表现为
+Redis CPU 不高但应用请求排队。</p>
+</section>
+<section id="pipeline-减少往返" class="level2">
+<h2>6.3 Pipeline 减少往返</h2>
+<p>Pipeline
+将多个命令连续发送，再批量读取响应，不需要等待每条结果后才发下一条。它不自动提供事务隔离；其他客户端仍可能在命令之间执行操作。某一条返回错误，也不会让先前已执行的命令回滚。</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> pip install <span class="at">-r</span> requirements.txt</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> examples/pipeline.py</span></code></pre></div>
+<p>示例使用
+<code>pipeline(transaction=False)</code>，明确只做批处理。批次不应无限大，否则客户端、服务端输出缓冲区和网络都会承压。先从几百条有界小命令起步，根据数据体积和延迟分位数调节。</p>
+</section>
+<section id="什么时候用什么" class="level2">
+<h2>6.4 什么时候用什么</h2>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>工具</th>
+<th>主要边界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>批量获取几个值</td>
+<td>MGET</td>
+<td>Cluster 同槽限制</td>
+</tr>
+<tr>
+<td>多条独立写入减少往返</td>
+<td>Pipeline</td>
+<td>不保证整批原子性</td>
+</tr>
+<tr>
+<td>原子执行固定命令组</td>
+<td>MULTI/EXEC</td>
+<td>不回滚运行时错误</td>
+</tr>
+<tr>
+<td>依赖前序结果做条件更新</td>
+<td>Lua 或 WATCH</td>
+<td>脚本阻塞、冲突重试</td>
+</tr>
+</tbody>
+</table>
+<p>练习：一个有 30 个应用进程的服务，每进程连接池上限
+50，总连接上限是多少？若服务端 <code>SLOWLOG</code>
+没有记录，但用户延迟很高，还应检查哪些环节？</p>
+</section>
+</section>
+<section id="第-7-章-事务乐观锁与-lua-原子性" class="level1">
+<h1>第 7 章　事务、乐观锁与 Lua 原子性</h1>
+<section id="multiexec-保证什么" class="level2">
+<h2>7.1 MULTI/EXEC 保证什么</h2>
+<pre class="redis"><code>MULTI
+SET lab:tx:a 1
+INCR lab:tx:a
+GET lab:tx:a
+EXEC</code></pre>
+<p><code>MULTI</code> 后命令排队，<code>EXEC</code>
+时按顺序执行，执行过程中不会插入其他客户端的命令。它不提供传统关系事务的回滚。排队时的语法错误可能导致整个事务无法提交；执行时的类型错误则只影响相应命令，其他命令仍会执行。</p>
+<pre class="redis"><code>SET lab:tx:bad text
+MULTI
+INCR lab:tx:bad
+SET lab:tx:ok yes
+EXEC
+GET lab:tx:ok</code></pre>
+<p>最后仍读到
+<code>yes</code>。因此应在事务前进行参数与类型设计，不要依赖“出错后自动恢复到事务前”。</p>
+</section>
+<section id="watch-检查并发变化" class="level2">
+<h2>7.2 WATCH 检查并发变化</h2>
+<p>客户端 A 执行
+<code>WATCH lab:balance</code>，再读取余额并计算新值；客户端 B 在 A
+提交前修改同一键；A 的 <code>EXEC</code>
+将返回空结果，表示事务因监视键变化而未执行。过期等变化也会影响
+WATCH。</p>
+<p>应用需要重新读取、重新计算并有界重试，不能拿旧计算结果无限提交。竞争激烈时，乐观锁可能持续冲突；简单条件修改更适合脚本。</p>
+</section>
+<section id="首次计数时设置-ttl" class="level2">
+<h2>7.3 首次计数时设置 TTL</h2>
+<p>以下脚本放在 <code>examples/fixed_window.lua</code>。只操作通过
+<code>KEYS</code> 显式传入的键，并在写入前验证参数。TTL 限制为 1—604800
+秒，避免超大参数在计数写入后才触发 EXPIRE 范围错误。</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">ttl</span> <span class="op">=</span> <span class="fu">tonumber</span><span class="op">(</span><span class="cn">ARGV</span><span class="op">[</span><span class="dv">1</span><span class="op">])</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> <span class="va">ttl</span> <span class="kw">or</span> <span class="va">ttl</span> <span class="op">&lt;</span> <span class="dv">1</span> <span class="kw">or</span> <span class="va">ttl</span> <span class="op">&gt;</span> <span class="dv">604800</span> <span class="kw">or</span> <span class="va">ttl</span> <span class="op">%</span> <span class="dv">1</span> <span class="op">~=</span> <span class="dv">0</span> <span class="cf">then</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="va">redis</span><span class="op">.</span>error_reply<span class="op">(</span><span class="st">&#39;ttl must be an integer between 1 and 604800&#39;</span><span class="op">)</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="kw">local</span> <span class="va">n</span> <span class="op">=</span> <span class="va">redis</span><span class="op">.</span>call<span class="op">(</span><span class="st">&#39;INCR&#39;</span><span class="op">,</span> <span class="cn">KEYS</span><span class="op">[</span><span class="dv">1</span><span class="op">])</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">n</span> <span class="op">==</span> <span class="dv">1</span> <span class="cf">then</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="va">redis</span><span class="op">.</span>call<span class="op">(</span><span class="st">&#39;EXPIRE&#39;</span><span class="op">,</span> <span class="cn">KEYS</span><span class="op">[</span><span class="dv">1</span><span class="op">],</span> <span class="va">ttl</span><span class="op">)</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="va">n</span></span></code></pre></div>
+<p>这是“从首次请求起计时”的固定窗口计数，不是按自然分钟对齐，也没有消除窗口交界突发。调用者把计数与阈值比较决定是否放行，拒绝请求也会计入本次计数。运行方式：</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose exec <span class="at">-T</span> redis redis-cli EVAL <span class="st">&quot;</span><span class="va">$(</span><span class="fu">cat</span> examples/fixed_window.lua<span class="va">)</span><span class="st">&quot;</span> 1 lab:limit 60</span></code></pre></div>
+<p>脚本运行期间其他命令不能插入，长循环会阻塞整个实例。脚本发生运行时错误也不会回滚先前写入，因此应把可预见的校验尽量放到第一次写入之前。</p>
+</section>
+<section id="脚本缓存与部署" class="level2">
+<h2>7.4 脚本缓存与部署</h2>
+<p><code>EVALSHA</code>
+可减少传输脚本文本，但脚本缓存可能因重启、切换或其他原因不存在。客户端需要处理
+<code>NOSCRIPT</code> 并按库的机制加载。Redis Functions 自 7.0
+提供另一种服务端代码管理方式，但它的部署、命名和权限仍需设计。</p>
+<p>练习：解释 Pipeline、事务和 Lua 的区别。若脚本先 <code>DECR</code>
+再检查参数，检查失败抛错，库存会恢复吗？如何重排步骤？</p>
+</section>
+</section>
+<section id="第-8-章-过期淘汰与内存容量" class="level1">
+<h1>第 8 章　过期、淘汰与内存容量</h1>
+<section id="过期和淘汰解决不同问题" class="level2">
+<h2>8.1 过期和淘汰解决不同问题</h2>
+<p>过期表达数据的有效期限；淘汰在达到内存限制时寻找可移除的数据。一个还没到
+TTL
+的键也可能因为淘汰被移除。因此数据库语义必须明确：丢掉一个键时能否重建？若不能，不能随意使用可淘汰策略。</p>
+<p>Redis 通过访问时检查与后台主动过期处理移除到期键，不能保证物理内存在
+TTL
+到期的那个瞬间立即回收。键空间通知也不是可靠定时任务调度器：订阅者断开期间的事件不会补发。</p>
+</section>
+<section id="选择-maxmemory-policy" class="level2">
+<h2>8.2 选择 maxmemory-policy</h2>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>适合场景</th>
+<th>需要接受的结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>noeviction</code></td>
+<td>不允许自动淘汰的数据</td>
+<td>部分写命令因内存不足报错</td>
+</tr>
+<tr>
+<td><code>allkeys-lru</code></td>
+<td>可重建的普通缓存</td>
+<td>近似淘汰较久未访问键</td>
+</tr>
+<tr>
+<td><code>allkeys-lfu</code></td>
+<td>热点较稳定的缓存</td>
+<td>近似按使用频率保留键</td>
+</tr>
+<tr>
+<td><code>volatile-ttl</code></td>
+<td>只淘汰设置 TTL 的键</td>
+<td>无候选键时写入仍可能失败</td>
+</tr>
+</tbody>
+</table>
+<p>LRU/LFU
+是近似实现，不是精确全局排序。选择策略前先按数据角色拆实例；把缓存和不能丢的队列混在同一可淘汰实例里，可能产生不可恢复的丢失。</p>
+</section>
+<section id="内存不仅是-value" class="level2">
+<h2>8.3 内存不仅是 value</h2>
+<pre class="redis"><code>INFO memory
+MEMORY USAGE lab:user:42
+MEMORY STATS
+INFO stats</code></pre>
+<p>需要观察键元数据、对象编码、分配器开销、碎片、客户端缓冲区、复制积压和持久化额外开销。<code>maxmemory</code>
+不等于进程 RSS 上限，部分缓冲区不计入淘汰比较；容器限额必须留出余量。RDB
+或 AOF 重写期间的写时复制，也会随写入负载增加内存需求。</p>
+<p>粗略容量估算：样本每条占用 500 字节，目标 1000 万条，仅该部分约 5
+GB，再加其他结构与运行余量。不要用 JSON
+字节数直接当实例需要的总内存；通过有代表性的样本在目标版本实测。</p>
+</section>
+<section id="大键与热键" class="level2">
+<h2>8.4 大键与热键</h2>
+<p>大键是体积或成员数很大的键，热键是访问量很高的键；两者可同时出现但不是一回事。前者影响传输、删除、迁移和恢复，后者会让单节点
+CPU
+或带宽饱和。拆分必须保留业务操作边界，不能把本来需要原子更新的数据随意散到不同槽。</p>
+<p>练习：为什么给容器 4 GB 内存，设置 <code>maxmemory 4gb</code>
+仍可能被 OOM
+杀死？写出缓存与任务队列分实例的理由，并列出需要分别监控的指标。</p>
+</section>
+</section>
+<section id="第-9-章-rdbaof-与恢复演练" class="level1">
+<h1>第 9 章　RDB、AOF 与恢复演练</h1>
+<section id="先定义损失预算" class="level2">
+<h2>9.1 先定义损失预算</h2>
+<p>RPO 表示可接受的数据损失范围，RTO
+表示可接受的恢复时间。选择持久化前先回答：能否丢最近一分钟的写入？能否停服十分钟重建？没有这些约束，很难评价某个配置是否“可靠”。</p>
+</section>
+<section id="rdb-是时间点快照" class="level2">
+<h2>9.2 RDB 是时间点快照</h2>
+<p>RDB
+将某个时间点的数据序列化到紧凑文件，适合备份、迁移和快速载入。后台快照通常通过
+fork 子进程完成，父进程继续处理请求；fork
+停顿、写时复制和磁盘负载仍可能影响线上延迟与内存。</p>
+<pre class="redis"><code>BGSAVE
+INFO persistence
+LASTSAVE</code></pre>
+<p><code>BGSAVE</code> 返回启动成功不代表快照已经完成。需要继续观察
+<code>rdb_bgsave_in_progress</code> 与
+<code>rdb_last_bgsave_status</code>。从上次成功快照之后的写入，若没有其他恢复来源，可能丢失。</p>
+</section>
+<section id="aof-是写操作记录" class="level2">
+<h2>9.3 AOF 是写操作记录</h2>
+<p>AOF 记录写操作，并通过重写压缩历史。<code>appendfsync always</code>
+更频繁同步，成本更高；<code>everysec</code>
+常用于性能与损失窗口的折中；<code>no</code>
+依赖操作系统刷盘。<code>everysec</code>
+通常描述约一秒量级的损失风险，不能当成任何磁盘阻塞、系统异常下的严格一秒上界。</p>
+<p>Redis 7 采用多文件
+AOF：基文件、增量文件和清单协同工作。不要只从目录里随便拷一个文件就声称备份完整。AOF
+重写不等于“把所有写入停止后从头再来”，但后台过程仍会占用资源。</p>
+<pre class="redis"><code>BGREWRITEAOF
+INFO persistence</code></pre>
+<p>实验 Compose 开启 AOF everysec 并保留周期
+RDB。两者均开启时，启动通常优先使用 AOF
+恢复，因为它可能更完整。实际文件目录与配置必须一起核对。</p>
+</section>
+<section id="恢复是备份的验收" class="level2">
+<h2>9.4 恢复是备份的验收</h2>
+<p>一个可执行的恢复流程包括：记录版本与配置；确认快照/重写完成；按官方多文件
+AOF
+备份规则获得一致的文件集合，或在隔离教学环境停止实例后复制完整数据目录；为备份计算校验和；在新目录和独立端口启动兼容版本；核对数据与
+TTL；记录耗时。</p>
+<p><code>docker compose restart redis</code>
+只验证该卷的正常重启，不能证明离线备份可用，也不能证明断电损失上界。故障演练要区分正常停机、进程崩溃、主机掉电与磁盘损坏。</p>
+<p>练习：如果副本实时复制了错误删除，它能作为历史备份吗？为什么 RDB
+文件的存在不足以证明可恢复？制定一次包含数据核对和耗时记录的恢复演练。</p>
+</section>
+</section>
+<section id="第-10-章-复制延迟与故障后的数据" class="level1">
+<h1>第 10 章　复制、延迟与故障后的数据</h1>
+<section id="异步复制的含义" class="level2">
+<h2>10.1 异步复制的含义</h2>
+<p>主节点处理写入，并把复制流发送给副本。副本可能落后；从副本读取可获得旧值。写入主节点成功返回，只能证明该次操作在主节点所提供的语义下完成，不能自动证明所有副本都已收到并持久化。</p>
+<p>首次同步可能传输完整数据；短暂断连后，若复制积压中仍有需要的历史，可部分同步。积压大小应根据写入速率和预期断连时间规划，不能把默认值当作适合所有环境。</p>
+</section>
+<section id="观察复制" class="level2">
+<h2>10.2 观察复制</h2>
+<pre class="redis"><code>INFO replication
+ROLE</code></pre>
+<p>关注角色、链路状态、复制偏移和副本延迟。在独立副本实例上使用
+<code>REPLICAOF host port</code>
+建立复制前，要确认它的数据可以被主节点数据替换。不要把实验命令运行到已有业务副本上。</p>
+<p>主从延迟不只来自网络：副本磁盘压力、慢命令和主节点积压也会参与。读写分离的收益需要和一致性要求一起看；刚修改后的订单状态通常不应无条件从落后副本读取。</p>
+</section>
+<section id="wait-不是共识协议" class="level2">
+<h2>10.3 WAIT 不是共识协议</h2>
+<p><code>WAIT 1 1000</code>
+等待当前连接此前写入被指定数量的副本确认，返回实际确认的副本数。它减少部分故障下丢失的概率，但不把
+Redis
+变成强一致的共识数据库，也不自动保证已确认数据落盘。超时返回的数量不足，不表示此前写操作被撤销。</p>
+<pre class="redis"><code>SET lab:replicated value
+WAIT 1 1000</code></pre>
+<p>单实例实验中没有副本，通常返回 0，键仍然已被写入。Redis 7.2 的
+<code>WAITAOF</code> 面向 AOF
+同步确认，是不同层面的能力；是否能满足业务承诺仍取决于故障模型、选主与存储系统。</p>
+</section>
+<section id="限制不等于保证" class="level2">
+<h2>10.4 限制不等于保证</h2>
+<p><code>min-replicas-to-write</code> 与
+<code>min-replicas-max-lag</code>
+可在健康副本不足时拒绝部分写入，牺牲可用性来降低风险，但并非每个写入的强一致提交协议。发生网络分区后，旧主和新主之间的结果仍要按实际切换过程分析。</p>
+<p>练习：客户端收到主节点写成功后主机立即失联，新主为什么可能没有该值？如果下单后必须立刻看到新状态，描述一种读路由方案及其失败处理。</p>
+</section>
+</section>
+<section id="第-11-章-sentinel发现故障与自动切换" class="level1">
+<h1>第 11 章　Sentinel：发现故障与自动切换</h1>
+<section id="sentinel-管理的是主从组" class="level2">
+<h2>11.1 Sentinel 管理的是主从组</h2>
+<p>Sentinel
+监测主副本、提供主节点发现，并在满足条件时协调故障转移。它不负责把一个键空间切成多个分片，也不让应用使用旧主地址就自动找到新主。客户端必须支持
+Sentinel 发现并在切换后重新建立到当前主节点的连接。</p>
+<p>生产通常部署至少三个
+Sentinel，分布到独立故障域。教学配置形状如下，不是可以不改就用于生产的完整文件：</p>
+<pre class="text"><code>port 26379
+sentinel monitor book-primary 10.0.0.10 6379 2
+sentinel down-after-milliseconds book-primary 5000
+sentinel failover-timeout book-primary 60000
+sentinel parallel-syncs book-primary 1</code></pre>
+<p>其中地址须换成所有参与者可达的地址，认证、文件可写性和网络暴露也需配置。</p>
+</section>
+<section id="quorum-与多数派" class="level2">
+<h2>11.2 quorum 与多数派</h2>
+<p>单个 Sentinel 认为主节点不可达是主观下线；达到配置的 quorum
+可形成客观下线判断。真正开始故障转移还需要取得多数 Sentinel
+的授权。quorum=2 不表示任意两台 Sentinel 在任何网络分区里都能选主。</p>
+<p>在三个 Sentinel
+中，两个能互相通信通常可以形成多数。把三个进程都放在同一台机器上，只提高了进程数量，没有提供主机级容错。探测超时越短也不一定越好，它可能把瞬时抖动放大成不必要的切换。</p>
+</section>
+<section id="切换期间的应用" class="level2">
+<h2>11.3 切换期间的应用</h2>
+<p>应用可能遇到连接断开、只读错误、超时或短时不可用。需要有界退避、重新发现主节点，并根据命令性质决定是否重试。重试会增加请求量，应配合熔断和整体超时预算。</p>
+<p>故障切换与业务补偿必须同时设计。异步复制可能丢失旧主上已确认但未复制的数据；旧主恢复后通常会重新加入当前拓扑，不能把它当成另一份仍可随意写入的主数据库。</p>
+</section>
+<section id="演练验收" class="level2">
+<h2>11.4 演练验收</h2>
+<p>演练前记录写入探针的递增序号；隔离主节点或在测试环境停止它；观察故障检测、选举、副本提升和客户端恢复；对比新主序号，记录不可用时间与缺失范围。仅看到日志“failover
+completed”，不足以证明业务恢复。</p>
+<p>练习：为什么需要同时检查 quorum 和多数派？若客户端配置了固定主节点
+IP，却没有 Sentinel 支持，自动切换后会发生什么？</p>
+</section>
+</section>
+<section id="第-12-章-cluster槽路由与多键边界" class="level1">
+<h1>第 12 章　Cluster：槽、路由与多键边界</h1>
+<section id="槽是分片单位" class="level2">
+<h2>12.1 槽是分片单位</h2>
+<p>Redis Cluster 将键映射到 16384
+个哈希槽，由多个主节点持有槽，副本提供故障接管能力。槽数量不是节点数量，也不代表需要
+16384
+个进程。扩缩容通过迁移槽和数据完成，期间会有额外流量、延迟和路由变化。</p>
+<p>常见教学拓扑是三主三副本，但进程数量本身不能证明跨故障域可用性。生产规划还要检查节点可达性、集群总线端口、客户端地址公告和认证配置。</p>
+</section>
+<section id="同槽是多键操作的前提" class="level2">
+<h2>12.2 同槽是多键操作的前提</h2>
+<pre class="text"><code>book:{order:42}:detail
+book:{order:42}:items
+book:{order:42}:status</code></pre>
+<p>有效 hash tag
+中花括号内的部分参与哈希，上面的三个键落到同槽，适合在事务或脚本中一起操作。普通的
+<code>book:order:42:detail</code> 和 <code>book:order:42:items</code>
+不会仅因为前缀相似就同槽。</p>
+<p>hash tag 设计是一种局部性选择：所有库存都使用 <code>{stock}</code>
+虽方便跨商品操作，却把请求集中到一个槽。按商品使用 <code>{sku:42}</code>
+能分散负载，但跨商品原子预留就无法靠单个脚本轻易完成，需要上层协调与补偿。</p>
+</section>
+<section id="moved-与-ask" class="level2">
+<h2>12.3 MOVED 与 ASK</h2>
+<p><code>MOVED</code> 表示槽的稳定路由归属，应更新槽缓存；迁槽期间的
+<code>ASK</code> 是临时重定向，按协议发送 <code>ASKING</code>
+后执行本次命令，不能简单把它当永久路由。选择成熟的 Cluster
+客户端，避免自行手写重定向循环。</p>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">redis-cli</span> <span class="at">-c</span> <span class="at">-h</span> 127.0.0.1 <span class="at">-p</span> 7000</span></code></pre></div>
+<p>此命令要求另行启动真实 Cluster；本仓库默认 Compose 是单实例，不会在
+7000 端口提供集群。单实例上执行相应跨键示例成功，不足以证明 Cluster
+兼容。</p>
+</section>
+<section id="扩容不能消除单键热点" class="level2">
+<h2>12.4 扩容不能消除单键热点</h2>
+<p>一个键只属于一个槽，增加节点不会自动分摊它的每一次请求。可采取本地短期缓存、请求合并、读副本或业务分桶；每个方案都会改变一致性或聚合成本。先用数据确认瓶颈是在单键、单槽还是整个集群。</p>
+<p>练习：为什么一个包含十万用户的超级 Hash 不能靠增加 Cluster
+节点拆开？为单商品预留库存和多商品订单分别说明原子边界与补偿方案。</p>
+</section>
+</section>
+<section id="第-13-章-缓存一致性与失效策略" class="level1">
+<h1>第 13 章　缓存一致性与失效策略</h1>
+<section id="cache-aside-的基本流程" class="level2">
+<h2>13.1 Cache Aside 的基本流程</h2>
+<p>读取时先查缓存，未命中再查数据库，并把结果写回缓存。更新时先提交数据库，再删除相应缓存，是常见的
+Cache Aside
+实践。数据库是事实来源，缓存是可以重建的加速层；应先把这个责任说清楚。</p>
+<p>更新数据库后删除缓存仍存在失败窗口：数据库提交成功而缓存删除失败，就会继续读到旧值。可通过事务消息、可靠事件表（outbox）或变更订阅驱动重试，并用
+TTL 限制残留时间。TTL
+给出的是在特定刷新规则下的陈旧窗口，不能证明强一致。</p>
+</section>
+<section id="两个并发请求的反例" class="level2">
+<h2>13.2 两个并发请求的反例</h2>
+<p>初始缓存没有数据。请求 A 从数据库读到旧版本 v1；请求 B 把数据库更新为
+v2 并删除缓存；A 随后把 v1 回填到缓存。即使 B
+按“先更新再删除”执行，缓存仍可能回到旧值。</p>
+<p>延迟双删可以减少部分竞态发生概率，但延迟选择依赖执行时间与网络，无法作为严格正确性证明。需要更强约束时，可按实体串行化变更和回填、使用有序版本及拒绝旧写的协议，或直接让关键读取走数据库。版本保护本身也要处理缓存不存在、淘汰和故障恢复后的版本信息丢失。</p>
+</section>
+<section id="空值热点和雪崩" class="level2">
+<h2>13.3 空值、热点和雪崩</h2>
+<p>缓存不存在的业务对象可缓解穿透，但空值必须和“缓存故障”分开表示，并设置较短
+TTL。新建对象后要失效空缓存。Bloom Filter
+是另一种优化，需要维护更新与误判语义；它不属于本书 7.2
+基线的普通基础类型，不能直接假定所有实例都有 <code>BF.*</code>
+命令。</p>
+<p>热点键到期时大量请求同时回源称为击穿，可用进程内请求合并、互斥回填或提前刷新缓解。许多键同时失效、节点故障导致大面积回源，可能形成雪崩；TTL
+随机扰动、分级缓存、限流和降级共同控制压力。</p>
+<p>TTL 随机化示例：基础 300 秒，加上 0—60
+秒均匀扰动。它可以打散整批写入导致的过期峰值，却无法解决 Redis
+整体不可用时的回源峰值。</p>
+</section>
+<section id="设计验收问题" class="level2">
+<h2>13.4 设计验收问题</h2>
+<p>写清命中率、回源
+QPS、最大陈旧时间、缓存不可用时是否放行，以及数据库能否承受降级流量。对错误返回做区分：数据库确实不存在、Redis
+超时和反序列化失败，三者不应都被视为业务不存在。</p>
+<p>练习：用 A、B
+两条时间线重现旧值回填。为一个商品详情接口定义可接受的陈旧时间，再设计数据库提交后失效失败的可重试机制。</p>
+</section>
+</section>
+<section id="第-14-章-分布式锁租约与限流" class="level1">
+<h1>第 14 章　分布式锁、租约与限流</h1>
+<section id="锁首先是租约" class="level2">
+<h2>14.1 锁首先是租约</h2>
+<pre class="redis"><code>SET lab:lock:report unique-owner-token NX PX 10000</code></pre>
+<p>条件写入加过期可获得一个租约。token
+必须对每次持有者唯一，用于防止释放别人的锁。释放时不能先 GET 再
+DEL，应在 Lua 中比较并删除：</p>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">redis</span><span class="op">.</span>call<span class="op">(</span><span class="st">&#39;GET&#39;</span><span class="op">,</span> <span class="cn">KEYS</span><span class="op">[</span><span class="dv">1</span><span class="op">])</span> <span class="op">==</span> <span class="cn">ARGV</span><span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="cf">then</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="va">redis</span><span class="op">.</span>call<span class="op">(</span><span class="st">&#39;DEL&#39;</span><span class="op">,</span> <span class="cn">KEYS</span><span class="op">[</span><span class="dv">1</span><span class="op">])</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="dv">0</span></span></code></pre></div>
+<p>当客户端暂停时间超过租约，另一个客户端可能已获得锁。原客户端恢复后继续写外部系统，仍可能造成冲突。给锁续期也不能从根本上消除进程暂停和网络分区带来的不确定性。</p>
+</section>
+<section id="fencing-token-的作用" class="level2">
+<h2>14.2 fencing token 的作用</h2>
+<p>如果下游资源能存储并拒绝旧序号，每次获得租约附带一个单调递增 fencing
+token，下游只接受更大的序号，就可以阻止迟到的旧持有者写入。关键在于下游实际验证，并且
+token 的单调性在故障模型中成立；仅把随机 token 改成 Redis
+<code>INCR</code>，在异步复制故障切换下不自动获得全局单调保证。</p>
+<p>需要严格互斥的资金或唯一性约束，应考虑数据库约束、事务或具有相应一致性保证的协调系统。Redis
+锁很适合降低重复刷新，但不能把它包装成所有场景下的绝对互斥承诺。</p>
+</section>
+<section id="三种常见限流" class="level2">
+<h2>14.3 三种常见限流</h2>
+<p>固定窗口实现简单，边界可突发；滑动日志按请求记录时间，较精确但内存随窗口请求量增长；令牌桶允许有界突发，用补充速率控制长期速率。选择方法时，应同时写出限额、窗口、突发容量和失败时策略。</p>
+<p>分布式限流要把检查与更新放进一个原子操作。使用客户端时间需要处理时钟偏差；使用服务端时间也要考虑系统时钟调整。键按用户或
+API
+分桶，配合过期控制基数。没有身份上限的攻击流量，可能让“限流键”本身成为内存问题。</p>
+</section>
+<section id="故障策略" class="level2">
+<h2>14.4 故障策略</h2>
+<p>Redis
+不可用时放行，系统可用性较高但后端可能受冲击；拒绝请求保护后端，但用户受到影响。可结合进程内保守限流和降级额度。策略应由业务风险决定，并在演练中验证，不能让客户端异常处理偶然决定系统行为。</p>
+<p>练习：解释“安全释放锁”和“安全访问外部资源”的区别。为发送短信设计用户、手机号和全局三层限流，说明
+Redis 故障时如何处理。</p>
+</section>
+</section>
+<section id="第-15-章-pubsubstream-与可靠消费" class="level1">
+<h1>第 15 章　Pub/Sub、Stream 与可靠消费</h1>
+<section id="实时广播与可恢复日志" class="level2">
+<h2>15.1 实时广播与可恢复日志</h2>
+<p>Pub/Sub
+将消息推送给当前在线的订阅者，断连期间的消息不会重放，适合允许丢失的在线提示。Stream
+保存有序消息并允许按 ID
+读取，消费组还提供待确认列表。二者不是把命令换个名字就能互相替代。</p>
+<pre class="redis"><code>XADD lab:orders * order_id 42 status paid
+XRANGE lab:orders - + COUNT 10
+XGROUP CREATE lab:orders workers 0 MKSTREAM
+XREADGROUP GROUP workers worker-a COUNT 10 STREAMS lab:orders &gt;</code></pre>
+<p>首次执行创建组成功；重复创建同名组会报
+<code>BUSYGROUP</code>，应用应明确处理。组从 <code>0</code>
+建立，表示可读取此前已有消息；若从 <code>$</code>
+建立，则从建组时的末尾以后开始。</p>
+</section>
+<section id="待确认与接管" class="level2">
+<h2>15.2 待确认与接管</h2>
+<p><code>XREADGROUP</code> 返回消息时，它会进入该消费组的 pending
+状态。业务处理成功后，用返回的实际消息 ID 调用 <code>XACK</code>：</p>
+<pre class="text"><code>XACK lab:orders workers &lt;上一步返回的消息ID&gt;
+XPENDING lab:orders workers
+XAUTOCLAIM lab:orders workers worker-b 60000 0-0 COUNT 10</code></pre>
+<p>尖括号是需要替换的说明，不是可直接执行的 ID。<code>XAUTOCLAIM</code>
+可接管闲置足够久的 pending
+消息。超时时间应覆盖正常处理时长，否则慢消费者和接管者可能重复处理同一业务。</p>
+</section>
+<section id="至少一次需要幂等" class="level2">
+<h2>15.3 至少一次需要幂等</h2>
+<p>消费者完成数据库写入后，在 <code>XACK</code>
+前崩溃，消息会被再次处理。因此需要数据库唯一键或幂等结果表，以业务事件
+ID 拒绝重复副作用。若先确认再处理，则可能丢失尚未执行的工作。只靠 Redis
+消费组，无法自动让外部数据库写入实现恰好一次。</p>
+<p>建议处理流程：读取消息；解析与校验；在数据库事务里写入事件去重记录及业务变更；提交成功后确认。失败则重试，超过次数转入死信并告警。重试次数、异常分类和死信重放都应有操作入口。</p>
+</section>
+<section id="保留策略" class="level2">
+<h2>15.4 保留策略</h2>
+<p>Stream
+不会因为确认就自动删除消息。需要使用有容量边界的裁剪或归档策略。过早裁剪可能让
+pending 只剩引用而无法读取原始消息体，影响恢复。近似
+<code>MAXLEN ~</code>
+是性能与长度精度的折中，不能把近似上限当作精确内存配额。</p>
+<p>练习：解释
+<code>XACK</code>、删除消息和业务提交的关系。如果消息处理成功但确认响应丢失，消费者下一次该如何保证不会重复发货？</p>
+</section>
+</section>
+<section id="第-16-章-性能测量与慢请求排查" class="level1">
+<h1>第 16 章　性能测量与慢请求排查</h1>
+<section id="从用户延迟开始" class="level2">
+<h2>16.1 从用户延迟开始</h2>
+<p>平均延迟会隐藏少量很慢的请求，至少观察 p50、p95、p99
+和超时率。记录请求量、命令分布、输入输出字节数及错误率，才能区分负载变大与单次操作变慢。端到端延迟也可能来自应用线程池或连接池，与
+Redis 命令执行时间不是同一个指标。</p>
+<pre class="redis"><code>INFO commandstats
+INFO clients
+INFO stats
+SLOWLOG GET 10
+LATENCY LATEST</code></pre>
+<p><code>SLOWLOG</code>
+主要计量命令执行，不包含完整的网络传输和客户端排队。<code>LATENCY LATEST</code>
+只有在相应监控阈值启用并产生事件时才有数据；空结果不能证明系统没有延迟。</p>
+</section>
+<section id="由证据缩小范围" class="level2">
+<h2>16.2 由证据缩小范围</h2>
+<p>若 CPU
+高，先看高频或高复杂度命令、脚本和大集合操作；若网络饱和，看大值返回、重复获取和输出缓冲；若内存接近限制，看淘汰、碎片、对象分布和持久化峰值；若磁盘或
+fork 相关指标异常，结合持久化状态与宿主机监控。</p>
+<p><code>MONITOR</code>
+会带来额外开销且可能暴露业务参数，不宜长期在线打开。键抽样、<code>redis-cli --bigkeys</code>
+等扫描工具也有成本，要在明确范围和时间窗口内执行。</p>
+</section>
+<section id="基准不是排行榜" class="level2">
+<h2>16.3 基准不是排行榜</h2>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose exec redis redis-benchmark <span class="at">-t</span> get,set <span class="at">-n</span> 10000 <span class="at">-c</span> 10 <span class="at">-d</span> 128</span></code></pre></div>
+<p>这只产生一个受控的小基准，不能代表你的订单接口吞吐。连接数、数据大小、命中比例、TLS、持久化、Pipeline
+和客户端所在网络都会改变结果。压测应在独立环境进行，记录软件版本、硬件、配置和命令，再结合真实业务分布回放。</p>
+<p>找到吞吐拐点的方法是逐级增加并发，观察吞吐增长是否放缓、尾延迟是否突增以及错误率是否提高。不要把已经超时的大量请求剔除后，只报告成功请求的漂亮延迟。</p>
+</section>
+<section id="优化的次序" class="level2">
+<h2>16.4 优化的次序</h2>
+<p>先修正不受控的数据规模和算法，再减少往返与无效请求，然后调整连接、批次和部署资源。微调底层配置前，建立前后对比基线，并保留回滚方案。</p>
+<p>练习：若平均延迟 1 毫秒而 p99 达 300
+毫秒，为什么平均值不足以描述体验？列出一种能区分服务端执行慢与客户端排队慢的观测组合。</p>
+</section>
+</section>
+<section id="第-17-章-安全权限与部署边界" class="level1">
+<h1>第 17 章　安全、权限与部署边界</h1>
+<section id="先限制网络可达性" class="level2">
+<h2>17.1 先限制网络可达性</h2>
+<p>Redis
+不应直接暴露在公共网络。绑定地址、防火墙、容器端口映射和云安全组共同限定访问范围。protected
+mode
+是一层保护，不能代替网络隔离与身份认证。容器中监听所有接口与宿主机是否开放公网端口，是不同配置层面。</p>
+<p>本仓库仅映射
+<code>127.0.0.1:6379</code>，不配置生产凭据。它适合本机实验，不是公网部署模板。共享机器上的其他本机进程仍可访问该端口。</p>
+</section>
+<section id="acl-按最小权限分工" class="level2">
+<h2>17.2 ACL 按最小权限分工</h2>
+<p>Redis 6 起可用 ACL
+创建独立用户，限制命令类别和键模式。下面是配置形状示例，必须替换口令并按目标版本检查命令权限：</p>
+<pre class="text"><code>ACL SETUSER book-reader reset on &gt;REPLACE_WITH_STRONG_SECRET ~book:cache:* +get +mget +ping</code></pre>
+<p>示例不是 shell 命令；若在 shell 中直接粘贴 <code>&gt;</code>
+会被解释成重定向。即使在 Redis
+交互终端运行，也应意识到口令可能进入终端历史。实际交付宜使用安全配置文件或密钥注入，避免把明文口令写入
+Git。</p>
+<p>读写用户、管理用户和监控用户应分开，管理命令不授予普通业务。脚本所调用的命令也受
+ACL 规则约束；不要假设允许 <code>EVAL</code>
+就获得所有能力，也不要仅靠键名前缀代替正确的多租户安全设计。</p>
+</section>
+<section id="tls-与敏感信息" class="level2">
+<h2>17.3 TLS 与敏感信息</h2>
+<p>TLS
+保护传输中的身份凭据与业务值，并要求验证证书。仅开启加密而不校验证书，仍可能连接到错误服务端。生产应评估
+TLS CPU 成本并配置证书轮换。</p>
+<p>备份、AOF、慢日志、调试日志和故障截图都可能包含敏感信息，需要访问控制、保留策略与加密。把密码从代码移到环境变量只能解决一部分问题；进程环境、日志输出和
+CI 配置仍需管控。</p>
+</section>
+<section id="升级与变更" class="level2">
+<h2>17.4 升级与变更</h2>
+<p>升级前核对发行说明、客户端支持、持久化格式兼容和模块依赖；先在恢复副本或预发布环境验证。滚动操作需要遵循具体拓扑的升级流程，不能简单地逐台重启并假设无损。回滚计划应包含旧版本是否能读取新版本生成的数据文件。</p>
+<p>练习：为只读商品缓存设计最小 ACL 需求。为什么把 Redis
+放在私有网络后仍需要认证？列出仓库与 CI 中必须避免记录的三类秘密。</p>
+</section>
+</section>
+<section id="第-18-章-监控故障处置与恢复手册" class="level1">
+<h1>第 18 章　监控、故障处置与恢复手册</h1>
+<section id="指标应连接到业务后果" class="level2">
+<h2>18.1 指标应连接到业务后果</h2>
+<p>监控至少覆盖业务错误率与尾延迟、连接数与拒绝连接、内存与淘汰、复制延迟、持久化失败、主从角色变化以及磁盘可用空间。计数器需要换算为速率，节点重启后计数归零要正确处理。一个固定“命中率低于
+90%”阈值并不适合所有缓存。</p>
+<p>缓存命中率常用命中数除以命中与未命中之和，但指标只说明相应命令在
+Redis
+端的键访问；不一定等于应用完整缓存链路的命中率。进程内缓存、批量调用和业务空值会改变解释。</p>
+</section>
+<section id="内存告警处置" class="level2">
+<h2>18.2 内存告警处置</h2>
+<p>先确认是数据增长、输出缓冲、复制/重写压力还是碎片；检查
+<code>used_memory</code>、RSS、<code>mem_not_counted_for_evict</code>
+和配置。确认淘汰速率及写入错误对业务的影响。若必须清理，先找明确的可重建命名空间，以限速
+SCAN 和有界删除执行；不要临时使用全库清空来碰运气。</p>
+</section>
+<section id="延迟升高处置" class="level2">
+<h2>18.3 延迟升高处置</h2>
+<p>先保护业务：降低非关键流量、暂停高成本批处理、启用既定降级。保存指标时间线、慢日志和变更记录。排查慢脚本、大键操作、fork、磁盘同步、宿主机争用及连接池等待，再做有针对性的改动。</p>
+<p>重启会丢失部分诊断信息，并可能触发冷缓存洪峰或全量复制。只有在明确收益、风险和恢复能力时才把它作为处置手段。</p>
+</section>
+<section id="备份恢复验收表" class="level2">
+<h2>18.4 备份恢复验收表</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>应留下的证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>来源</td>
+<td>节点、版本、配置与备份时间</td>
+</tr>
+<tr>
+<td>完整性</td>
+<td>文件集合及校验和</td>
+</tr>
+<tr>
+<td>隔离恢复</td>
+<td>新实例端口、启动日志与角色</td>
+</tr>
+<tr>
+<td>数据核对</td>
+<td>关键样本、数量、业务不变量、TTL</td>
+</tr>
+<tr>
+<td>时间</td>
+<td>从开始到可提供业务服务的实测耗时</td>
+</tr>
+<tr>
+<td>后续</td>
+<td>备份加密、访问控制、过期清理</td>
+</tr>
+</tbody>
+</table>
+<p>恢复不仅看键数量，还要检查余额非负、幂等记录与业务结果相符等不变量。有些到期键在恢复后自然消失，数量变化需要结合备份时间解释。</p>
+<p>练习：为“淘汰速率突然升高但请求量没变”写一个排查次序。如何证明一次恢复演练满足
+15 分钟 RTO，而不只是进程在 15 分钟内启动？</p>
+</section>
+</section>
+<section id="第-19-章-综合实战幂等库存预留" class="level1">
+<h1>第 19 章　综合实战：幂等库存预留</h1>
+<section id="范围与不变量" class="level2">
+<h2>19.1 范围与不变量</h2>
+<p>我们实现单商品、单实例原子预留：给定请求 ID
+和数量，在库存足够时扣减一次；相同请求与数量的重试返回原结果；同一请求
+ID 改数量应报冲突。任意成功预留之后库存都不能为负。示例代码在
+<code>examples/reserve.py</code> 和
+<code>examples/reserve.lua</code>。</p>
+<p>这不是完整电商订单系统：没有支付、取消、持久账本或跨商品原子性。它的价值是把可验证的不变量放到清晰边界内。生产中数据库通常保存最终订单与库存事实，需要
+outbox、补偿或其他一致性协议协调 Redis 与数据库。</p>
+</section>
+<section id="数据模型" class="level2">
+<h2>19.2 数据模型</h2>
+<p>库存键 <code>book:{sku:demo}:stock</code> 保存非负整数；请求键
+<code>book:{sku:demo}:request:abc</code> 保存请求数量及结果，默认保留 24
+小时。相同 hash tag 让同商品键处于 Cluster
+同槽，但示例实测环境是单实例，不声称已完成集群故障验证。</p>
+<p>请求 ID 必须由调用方在重试之间保持稳定。客户端每重试一次就生成新
+ID，幂等协议就失去作用。24 小时之后记录过期，旧 ID
+可能再次生效，所以保证仅在保存窗口内成立；记录还会受到淘汰、持久化与复制策略影响。</p>
+</section>
+<section id="原子流程" class="level2">
+<h2>19.3 原子流程</h2>
+<p>脚本先检查数量范围、TTL、库存与请求记录的类型，验证参数可解析；若存在请求记录，核对数量并返回旧结果；否则读取库存，充足就扣减，不足就返回拒绝；成功和拒绝都会写入有
+TTL 的结果记录。</p>
+<p>拒绝也幂等：同一请求因库存不足被拒绝后，即使补货，重试仍返回原拒绝。用户发起新的业务尝试时应使用新的请求
+ID。这避免同一请求在不同重试中悄悄改变含义。</p>
+<p>示例把数量和库存限制在 0 到 10 亿的整数范围内，让 Lua
+数字比较与整数字符串处理保持清楚。更大整数不能直接依赖 Lua
+双精度数字的精确性。脚本发生不可预见的服务端错误仍无回滚，因此隔离实例采用
+<code>noeviction</code> 并预留内存，生产还需故障补偿。</p>
+</section>
+<section id="运行与预期" class="level2">
+<h2>19.4 运行与预期</h2>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> pip install <span class="at">-r</span> requirements.txt</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> examples/reserve.py <span class="at">--reset</span></span></code></pre></div>
+<p><code>--reset</code> 只清理本示例专用的 <code>book:{sku:demo}:</code>
+命名空间，再初始化 10 件库存。示例第一次请求 3 件后剩余
+7；重复相同请求仍剩 7；更换 ID 请求 8 件被拒绝；原 ID 改成 4
+件触发冲突。</p>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> unittest discover <span class="at">-s</span> tests <span class="at">-v</span></span></code></pre></div>
+<p>集成测试使用独立随机命名空间，覆盖幂等重试、数量冲突、库存不足、无效参数、TTL
+和并发竞争。测试不会清空整个
+Redis。并发测试的目标是验证“累计成功扣减不超过初始库存”，不是跑出最高吞吐。</p>
+</section>
+<section id="从教学到上线" class="level2">
+<h2>19.5 从教学到上线</h2>
+<p>应用需要区分确定拒绝、参数错误和网络结果未知。网络结果未知时以相同请求
+ID 重试或查询，不能换 ID
+扣第二次。还需定义请求记录保留时间、库存初始化权限、库存变化审计与故障恢复对账。即使
+Lua 保证当前主节点上的原子执行，异步复制切换仍可能丢失最近状态。</p>
+<p>练习：如果请求结果键被提前淘汰，会发生什么？若要支持取消预留，应如何记录状态并防止同一取消重复加回库存？先画出状态机，再决定脚本接口。</p>
+</section>
+</section>
+<section id="第-20-章-练习参考答案与学习检查" class="level1">
+<h1>第 20 章　练习参考答案与学习检查</h1>
+<section id="基础与建模第-15-章" class="level2">
+<h2>20.1 基础与建模（第 1—5 章）</h2>
+<p>第 1
+章：键不存在通常返回空值；连接失败是异常；类型错误由服务器返回错误。把它们统一成空值会隐藏服务不可用或模型错误，甚至让应用错误创建重复记录。</p>
+<p>第 2 章：<code>INCR</code> 保留原 TTL；普通 <code>SET</code> 清除
+TTL；<code>SET ... KEEPTTL</code> 保留已有 TTL。SCAN
+需要游标走到零才能完成，批次上限限制负载，可重复执行处理重复返回及中途失败。</p>
+<p>第 3 章：两个客户端可能同时读到不存在，随后都
+SET。<code>SET NX</code>
+把条件与写入合在一起。超时不能证明没有递增，计费类操作需要稳定请求 ID
+和可查询结果。</p>
+<p>第 4 章：无限 List
+让范围读取、迁移和长期保留成本失控。可以按时间分桶，把完整评论保存在数据库，以游标分页访问，Redis
+只缓存有限的最新评论。有界最近访问可在脚本中执行 LPUSH 与
+LTRIM；独立执行时短暂超过上限，其他读者可能看见额外记录。</p>
+<p>第 5 章：日活可以用 HyperLogLog
+估计，账单应使用精确、可审计数据。排行榜可先按整数分数分组，再在同分组维护时间排序，或将有界分数与时间编码进经过精度证明的组合值；代价是读取与更新更复杂。</p>
+</section>
+<section id="原子性与可靠性第-612-章" class="level2">
+<h2>20.2 原子性与可靠性（第 6—12 章）</h2>
+<p>第 6 章：30×50=1500
+条连接，还需加运维、监控和其他应用。排查应加入应用排队、池等待、网络
+RTT、请求体积和服务端执行指标。</p>
+<p>第 7 章：Pipeline
+减少往返；事务执行命令组时不插入其他客户端命令，但不回滚运行时错误；Lua
+支持条件逻辑并原子执行。脚本先扣减后抛错不会自动恢复，应前置校验并设计错误恢复。</p>
+<p>第 8 章：RSS 可能超过参与淘汰比较的内存，fork
+写时复制和缓冲区都需要余量。缓存可重建，队列通常不能丢，混用淘汰策略会让任务消失。</p>
+<p>第 9
+章：副本也会复制误删，不能代替历史备份。文件存在未证明文件完整、版本兼容与业务数据正确；必须在隔离环境恢复并计时。</p>
+<p>第 10
+章：异步复制未完成时旧主丢失，新主可能没有最后写入。写后短期固定走主节点可减少陈旧读取，但切换时仍需按业务一致性策略处理未知结果。</p>
+<p>第 11 章：quorum
+用于故障判断，多数派用于选举授权。固定旧主地址的客户端可能断连、继续访问旧主或遇到只读错误，需要拓扑发现。</p>
+<p>第 12 章：Cluster 按键分槽，不会把 Hash
+的字段拆到多个节点。单商品可同槽脚本，多商品需要数据库事务或业务协调，部分成功后有幂等补偿。</p>
+</section>
+<section id="应用与运维第-1319-章" class="level2">
+<h2>20.3 应用与运维（第 13—19 章）</h2>
+<p>第 13 章：A 读 v1，B 写 v2 并删缓存，A 回填 v1，即可重现旧值。outbox
+将数据库业务变更与待处理失效事件放在同一数据库事务中，由后台可靠重试删除，消费者必须可重复执行。</p>
+<p>第 14 章：比较 token
+释放只防止误删他人的锁，不能阻止租约已失效的旧持有者写下游。短信限流可分别按用户、号码和全局预算执行，Redis
+故障时采用保守本地限流或明确拒绝策略，避免无上限放行。</p>
+<p>第 15 章：业务提交是外部状态变更，XACK
+只是消费组确认，不自动删除消息。数据库以事件 ID
+建唯一约束，在同一事务内做去重及业务写入，重复消息只确认、不重复发货。</p>
+<p>第 16
+章：平均值掩盖长尾；应用分段计时与服务端慢日志结合，能区分排队、网络和执行。压测应保留超时请求与失败率。</p>
+<p>第 17 章：读缓存只需相应键模式及 GET/MGET
+等命令，认证防止内部横向访问与误操作。口令、令牌、含隐私的业务值不应进入仓库和公开日志。</p>
+<p>第 18 章：检查对象变大、TTL
+被清除、批量导入、内存上限变化和缓冲开销。RTO
+应计到应用恢复服务并通过业务探针的时刻，不只计算 Redis
+进程启动时间。</p>
+<p>第 19 章：幂等键提前丢失会让相同 ID 再次扣减。取消可设计
+RESERVED→CANCELLED
+状态转换，只在首次有效转换时加回库存；并发支付与取消需统一状态约束，保留完整审计来源。</p>
+</section>
+<section id="自测清单" class="level2">
+<h2>20.4 自测清单</h2>
+<p>能否解释一条命令的时间复杂度及其数据规模？能否指出一个成功响应在复制与持久化上的边界？能否给每个键说明所有者、TTL、最大大小与失效方式？能否在网络超时后安全重试？能否用一次隔离恢复演练证明备份有效？这些问题比记住更多命令更接近生产能力。</p>
+</section>
+</section>
+<section id="附录-官方资料与命令速查" class="level1">
+<h1>附录　官方资料与命令速查</h1>
+<section id="资料使用方法" class="level2">
+<h2>资料使用方法</h2>
+<p>本书以官方命令语义和运维文档为依据。以下链接指向持续更新的资料，访问日期为
+2026-10-20；它们可能包含超出 Redis 7.2
+基线的新增选项。使用前检查页面中的版本标记、目标服务版本和客户端支持，不要直接复制最新选项到旧实例。</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>主题</th>
+<th>官方入口</th>
+<th>对应章节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据结构</td>
+<td><a href="https://redis.io/docs/latest/develop/data-types/"
+class="uri">https://redis.io/docs/latest/develop/data-types/</a></td>
+<td>3—5、15</td>
+</tr>
+<tr>
+<td>命令检索与复杂度</td>
+<td><a href="https://redis.io/commands/"
+class="uri">https://redis.io/commands/</a></td>
+<td>全书</td>
+</tr>
+<tr>
+<td>过期语义</td>
+<td><a href="https://redis.io/commands/expire/"
+class="uri">https://redis.io/commands/expire/</a></td>
+<td>2、8</td>
+</tr>
+<tr>
+<td>SCAN 保证</td>
+<td><a href="https://redis.io/commands/scan/"
+class="uri">https://redis.io/commands/scan/</a></td>
+<td>2</td>
+</tr>
+<tr>
+<td>Pipeline</td>
+<td><a
+href="https://redis.io/docs/latest/develop/using-commands/pipelining/"
+class="uri">https://redis.io/docs/latest/develop/using-commands/pipelining/</a></td>
+<td>6</td>
+</tr>
+<tr>
+<td>事务</td>
+<td><a
+href="https://redis.io/docs/latest/develop/using-commands/transactions/"
+class="uri">https://redis.io/docs/latest/develop/using-commands/transactions/</a></td>
+<td>7</td>
+</tr>
+<tr>
+<td>Lua 脚本</td>
+<td><a
+href="https://redis.io/docs/latest/develop/programmability/eval-intro/"
+class="uri">https://redis.io/docs/latest/develop/programmability/eval-intro/</a></td>
+<td>7、19</td>
+</tr>
+<tr>
+<td>内存淘汰</td>
+<td><a href="https://redis.io/docs/latest/develop/reference/eviction/"
+class="uri">https://redis.io/docs/latest/develop/reference/eviction/</a></td>
+<td>8</td>
+</tr>
+<tr>
+<td>持久化</td>
+<td><a
+href="https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/"
+class="uri">https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/</a></td>
+<td>9</td>
+</tr>
+<tr>
+<td>复制</td>
+<td><a
+href="https://redis.io/docs/latest/operate/oss_and_stack/management/replication/"
+class="uri">https://redis.io/docs/latest/operate/oss_and_stack/management/replication/</a></td>
+<td>10</td>
+</tr>
+<tr>
+<td>WAIT</td>
+<td><a href="https://redis.io/commands/wait/"
+class="uri">https://redis.io/commands/wait/</a></td>
+<td>10</td>
+</tr>
+<tr>
+<td>Sentinel</td>
+<td><a
+href="https://redis.io/docs/latest/operate/oss_and_stack/management/sentinel/"
+class="uri">https://redis.io/docs/latest/operate/oss_and_stack/management/sentinel/</a></td>
+<td>11</td>
+</tr>
+<tr>
+<td>Cluster 规范</td>
+<td><a
+href="https://redis.io/docs/latest/operate/oss_and_stack/reference/cluster-spec/"
+class="uri">https://redis.io/docs/latest/operate/oss_and_stack/reference/cluster-spec/</a></td>
+<td>12</td>
+</tr>
+<tr>
+<td>分布式锁</td>
+<td><a
+href="https://redis.io/docs/latest/develop/clients/patterns/distributed-locks/"
+class="uri">https://redis.io/docs/latest/develop/clients/patterns/distributed-locks/</a></td>
+<td>14</td>
+</tr>
+<tr>
+<td>Stream</td>
+<td><a href="https://redis.io/docs/latest/develop/data-types/streams/"
+class="uri">https://redis.io/docs/latest/develop/data-types/streams/</a></td>
+<td>15</td>
+</tr>
+<tr>
+<td>ACL</td>
+<td><a
+href="https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/"
+class="uri">https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/</a></td>
+<td>17</td>
+</tr>
+<tr>
+<td>TLS</td>
+<td><a
+href="https://redis.io/docs/latest/operate/oss_and_stack/management/security/encryption/"
+class="uri">https://redis.io/docs/latest/operate/oss_and_stack/management/security/encryption/</a></td>
+<td>17</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="命令速查" class="level2">
+<h2>命令速查</h2>
+<table>
+<thead>
+<tr>
+<th>目的</th>
+<th>命令</th>
+<th>使用前想清楚</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>条件缓存写入</td>
+<td>SET NX EX</td>
+<td>返回空值和超时不是同一种结果</td>
+</tr>
+<tr>
+<td>批量读取</td>
+<td>MGET / HMGET</td>
+<td>返回体积、Cluster 槽约束</td>
+</tr>
+<tr>
+<td>修改计数</td>
+<td>INCR / HINCRBY</td>
+<td>整数范围与重试幂等</td>
+</tr>
+<tr>
+<td>游标遍历</td>
+<td>SCAN / HSCAN</td>
+<td>无快照、可能重复、游标到零</td>
+</tr>
+<tr>
+<td>排行</td>
+<td>ZADD / ZRANGE</td>
+<td>同分规则与分数精度</td>
+</tr>
+<tr>
+<td>回收大对象</td>
+<td>UNLINK</td>
+<td>异步释放积压</td>
+</tr>
+<tr>
+<td>原子条件逻辑</td>
+<td>EVAL / EVALSHA</td>
+<td>前置校验、执行时长、缓存失效</td>
+</tr>
+<tr>
+<td>观察复制</td>
+<td>INFO replication</td>
+<td>延迟和已落盘是不同概念</td>
+</tr>
+<tr>
+<td>消费确认</td>
+<td>XACK</td>
+<td>不替代外部业务提交</td>
+</tr>
+<tr>
+<td>查慢命令</td>
+<td>SLOWLOG GET</td>
+<td>不代表端到端延迟</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="建议的学习记录" class="level2">
+<h2>建议的学习记录</h2>
+<p>为每个实验记录五项：版本与配置、预期结果、真实输出、失败边界、业务用途。每次结论写出适用条件，例如“在单主当前状态上原子执行”，避免把局部观察扩展成所有故障模型下的保证。</p>
+</section>
+</section></article><footer>正文 <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> · 示例代码 MIT · 非 Redis 官方出版物<br>书稿与 EPUB 由同一来源构建。上次阅读位置仅保存在当前浏览器。</footer></main></div><script src="reader.js" defer></script>
+</body></html>
