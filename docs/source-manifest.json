@@ -24,9 +24,9 @@
   "assets/cover.svg": "856be83fa7ed790afb008ac5517c87c2def3d2119f06c26a7bb65bcc6c57efdb",
   "assets/epub.css": "dd9d95277b4c7c52b2dcc5a5714448bb7f18c34a3200d17d7c886229d6508ac8",
   "assets/pandoc/translations/zh.yaml": "44cf61cd27afb88a78230aee9fc4ce14de7f3aca3e2f2f4a2e1765013f626d28",
-  "assets/reader.css": "dd5990885f9af6936cdd7625a1e740e74020c3cef238e79488cf3d1ef5d55c0e",
+  "assets/reader.css": "8e22be45e0a9665188fb1e67e48539709454a78ae34cd6e10b6930ff3cc88980",
   "assets/reader.html": "2e2f840886ce991c054ff0a38696f781f7dd7624ac566dfacc912ecf01f32ae9",
-  "assets/reader.js": "f246e50095804f669599cced6b078f6469908b3ec79cbcfd0d789a60cc1d779e",
+  "assets/reader.js": "473ada687ad548fb9763ba9be27ff2f8b652a899ae4e4871652282e1497f61f3",
   "metadata.yaml": "1f2bccdf0373cd7b61d9e0b3e6ad219a1ce537535c5463cbff5c714c4d5d3c8b",
   "scripts/build.py": "697cc452419d53928c5d3ed94e76b2d0beabc462b1ed54315fca6632b2a23ca8"
 }
